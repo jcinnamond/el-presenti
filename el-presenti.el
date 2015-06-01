@@ -1,3 +1,18 @@
+(defface el-presenti-title-face
+  '((t :family "Helvetica" :height 1600))
+  "The face to display titles"
+  :group :el-presenti)
+
+(defface el-presenti-subtitle-face
+  '((t :family "Helvetica" :height 360))
+  "The face to display subtitles"
+  :group :el-presenti)
+
+(defface el-presenti-code-face
+  '((t :height 240))
+  "The face to display subtitles"
+  :group :el-presenti)
+
 (define-minor-mode el-presenti-mode
   "Toggle el-presenti-mode."
 
@@ -56,9 +71,7 @@
   (interactive)
   (let (buffers)
     (dolist (content contents buffers)
-      (let ((buffer (generate-new-buffer (generate-new-buffer-name "el-presenti-slide"))))
-	(with-current-buffer buffer
-	  (insert content))
+      (let ((buffer (el-presenti--create-slide content)))
 	(setq buffers (append buffers (list buffer)))))
     (setq el-presenti--opened-buffers (copy-list buffers))
     (setq el-presenti--current (pop buffers))
@@ -91,12 +104,13 @@
   "Inserts an item into a slide.
 
 The item should be a list of (type content) where type is one (title, subtitle)"
-  (case (car item)
-    ('title (el-presenti--insert-title (cdr item)))))
+  (let ((face (intern (concat "el-presenti-" (symbol-name (car item)) "-face"))))
+    (el-presenti--insert-with-face (cadr item) face)))
 
-(defun el-presenti--insert-title (title)
-  "Inserts a title into the buffer at point and sets the text properties"
+(defun el-presenti--insert-with-face (text face)
+  "Inserts text into a buffer at point and sets the face"
   (let ((start (point))
-	(end (+ (point) (length title))))
-    (put-text-property 0 (length title) 'face '(:height 360 :foreground "#bb3333") title))
-    (insert title))
+	(end (+ (point) (length text))))
+    (put-text-property 0 (length text) 'face face text))
+  (insert text)
+  (newline))
