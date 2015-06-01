@@ -79,6 +79,10 @@
     (setq el-presenti--next buffers)
     (setq el-presenti--previous ()))
   (setq el-presenti--last-buffer (current-buffer))
+  (setq el-presenti--previous-cursor visible-cursor)
+  (modify-frame-parameters (selected-frame) (list (cons 'cursor-type nil)))
+  (setq el-presenti--previous-fringe fringe-mode)
+  (set-fringe-mode 0)
   (delete-other-windows)
   (set-window-buffer nil el-presenti--current)
   (el-presenti-mode t))
@@ -88,6 +92,8 @@
   (interactive)
   (dolist (b el-presenti--opened-buffers)
     (kill-buffer b))
+  (modify-frame-parameters (selected-frame) (list (cons 'cursor-type el-presenti--previous-cursor)))
+  (set-fringe-mode el-presenti--previous-fringe)
   (show-buffer nil el-presenti--last-buffer)
   (setq el-presenti--last-buffer nil)
   (el-presenti-mode nil))
@@ -97,6 +103,7 @@
   "creates a slide, returns a buffer"
   (let ((buffer (generate-new-buffer (generate-new-buffer-name "el-presenti-slide"))))
     (with-current-buffer buffer
+      (setq mode-line-format nil)
       (dolist (item content)
 	(el-presenti--insert-slide-item item))
       buffer)))
