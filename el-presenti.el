@@ -20,10 +20,11 @@
   :lighter " El Presenti"
   :global t
 
-  :keymap
-  '(([prior] . el-presenti-previous-buffer)
-    ([next] . el-presenti-next-buffer)
-    ("C-c C-p" . el-presenti-stop))
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "<prior>") 'el-presenti-previous-buffer)
+            (define-key map (kbd "<next>") 'el-presenti-next-buffer)
+            (define-key map (kbd "C-c C-p") 'el-presenti-stop)
+            map)
   :group 'el-presenti)
 
 (defun el-presenti-previous-buffer ()
