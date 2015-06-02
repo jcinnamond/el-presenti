@@ -27,21 +27,29 @@
             map)
   :group 'el-presenti)
 
+
+(defun el-presenti--show-buffer (buffer)
+  (set-window-buffer nil buffer)
+  (with-current-buffer buffer
+    (if (eq 'enh-ruby-mode major-mode)
+	(el-presenti--show-cursor)
+      (el-presenti--hide-cursor))))
+
 (defun el-presenti-previous-buffer ()
   "Shows the previous buffer"
   (interactive)
   (let ((prev-buffer (el-presenti--cycle-back)))
     (if (null prev-buffer)
-	(message "Already on the first buffer")
-      (set-window-buffer nil el-presenti--current))))
+	(message "Already on the first slide")
+      (el-presenti--show-buffer el-presenti--current))))
 
 (defun el-presenti-next-buffer ()
   "Shows the next buffer"
   (interactive)
   (let ((next-buffer (el-presenti--cycle-forward)))
     (if (null next-buffer)
-	(message "Already on the last buffer")
-      (set-window-buffer nil el-presenti--current))))
+	(message "Already on the last slide")
+      (el-presenti--show-buffer el-presenti--current))))
 
 (defun el-presenti--cycle-forward ()
   "Return the next buffer in the list, or nil if there are no more buffers."
@@ -67,24 +75,45 @@
   (let ((safe-item (if (listp item) item (list item))))
     (setq el-presenti--next (cons safe-item el-present--next))))
 
+(defun el-presenti--frame-property (prop)
+  (cdr (assoc prop (frame-parameters))))
+
+(defun el-presenti--hide-cursor ()
+  (modify-frame-parameters (selected-frame) (list (cons 'cursor-type nil))))
+
+(defun el-presenti--show-cursor ()
+  (modify-frame-parameters (selected-frame) (list (cons 'cursor-type el-presenti--previous-cursor))))
+
+(defun el-presenti--hide-emacs ()
+  (setq el-presenti--previous-cursor (el-presenti--frame-property 'cursor-type))
+  (setq el-presenti--background-color (el-presenti--frame-property 'background-color))
+  (set-background-color "Black")
+  (setq el-presenti--previous-fringe fringe-mode)
+  (set-fringe-mode 0))
+
+(defun el-presenti--restore-emacs ()
+  (el-presenti--show-cursor)
+  (set-fringe-mode el-presenti--previous-fringe)
+  (set-background-color el-presenti--background-color))
+
 (defun el-presenti-start (contents)
   "Set up the buffer list and start the el-presenti minor mode"
   (interactive)
   (let (buffers)
     (dolist (content contents buffers)
-      (let ((buffer (el-presenti--create-slide content)))
-	(setq buffers (append buffers (list buffer)))))
+      (if (eq 'file (car content))
+	  (let ((buffer (find-file-noselect (cadr content))))
+	    (setq buffers (append buffers (list buffer))))
+	(let ((buffer (el-presenti--create-slide content)))
+	  (setq buffers (append buffers (list buffer))))))
     (setq el-presenti--opened-buffers (copy-list buffers))
     (setq el-presenti--current (pop buffers))
     (setq el-presenti--next buffers)
     (setq el-presenti--previous ()))
   (setq el-presenti--last-buffer (current-buffer))
-  (setq el-presenti--previous-cursor visible-cursor)
-  (modify-frame-parameters (selected-frame) (list (cons 'cursor-type nil)))
-  (setq el-presenti--previous-fringe fringe-mode)
-  (set-fringe-mode 0)
+  (el-presenti--hide-emacs)
   (delete-other-windows)
-  (set-window-buffer nil el-presenti--current)
+  (el-presenti--show-buffer el-presenti--current)
   (el-presenti-mode t))
 
 (defun el-presenti-stop ()
@@ -92,8 +121,7 @@
   (interactive)
   (dolist (b el-presenti--opened-buffers)
     (kill-buffer b))
-  (modify-frame-parameters (selected-frame) (list (cons 'cursor-type el-presenti--previous-cursor)))
-  (set-fringe-mode el-presenti--previous-fringe)
+  (el-presenti--restore-emacs)
   (show-buffer nil el-presenti--last-buffer)
   (setq el-presenti--last-buffer nil)
   (el-presenti-mode nil))
@@ -105,8 +133,8 @@
     (with-current-buffer buffer
       (setq mode-line-format nil)
       (dolist (item content)
-	(el-presenti--insert-slide-item item))
-      buffer)))
+	(el-presenti--insert-slide-item item)))
+    buffer))
 
 (defun el-presenti--insert-slide-item (item)
   "Inserts an item into a slide.
