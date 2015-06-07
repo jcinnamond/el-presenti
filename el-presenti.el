@@ -28,12 +28,14 @@
   :group 'el-presenti)
 
 
-(defun el-presenti--show-buffer (buffer)
-  (set-window-buffer nil buffer)
-  (with-current-buffer buffer
-    (if (eq 'enh-ruby-mode major-mode)
-	(el-presenti--show-cursor)
-      (el-presenti--hide-cursor))))
+(defun el-presenti--show-buffer (buffer-pair)
+  (let ((buffer (car buffer-pair))
+	(buffer-type (cdr buffer-pair)))
+    (set-window-buffer nil buffer)
+    (with-current-buffer buffer
+      (if (eq 'slide buffer-type)
+	  (el-presenti--hide-cursor)
+	(el-presenti--show-cursor)))))
 
 (defun el-presenti-previous-buffer ()
   "Shows the previous buffer"
@@ -121,7 +123,7 @@
   "Stop an el-presenti presentation and close any associated buffers"
   (interactive)
   (dolist (b el-presenti--opened-buffers)
-    (kill-buffer b))
+    (kill-buffer (car b)))
   (el-presenti--restore-emacs)
   (show-buffer nil el-presenti--last-buffer)
   (setq el-presenti--last-buffer nil)
@@ -131,8 +133,8 @@
   (let ((existing-buffer (find-buffer-visiting filename)))
     (if existing-buffer
 	(with-current-buffer existing-buffer
-	  (clone-indirect-buffer filename nil))
-      (find-file-noselect filename))))
+	  (cons (clone-indirect-buffer filename nil) 'file))
+      (cons (find-file-noselect filename) 'file))))
 
 (defun el-presenti--create-slide (content)
   "creates a slide, returns a buffer"
@@ -141,7 +143,7 @@
       (setq mode-line-format nil)
       (dolist (item content)
 	(el-presenti--insert-slide-item item)))
-    buffer))
+    (cons buffer 'slide)))
 
 (defun el-presenti--insert-slide-item (item)
   "Inserts an item into a slide.
