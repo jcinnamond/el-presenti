@@ -104,10 +104,9 @@
       (let ((type (car slide-content))
 	    (content (cdr slide-content)))
 	(case type
-	  ('file (let ((buffer (el-presenti--load-file content)))
-		   (setq buffers (append buffers (list buffer)))))
-	  ('slide (let ((buffer (el-presenti--create-slide content)))
-		    (setq buffers (append buffers (list buffer))))))))
+	  ('file (add-to-list 'buffers (el-presenti--load-file content)))
+	  ('slide (add-to-list 'buffers (el-presenti--create-slide content))))))
+    (setq buffers (reverse buffers))
     (setq el-presenti--opened-buffers (copy-list buffers))
     (setq el-presenti--current (pop buffers))
     (setq el-presenti--next buffers)
@@ -132,7 +131,7 @@
   (let ((existing-buffer (find-buffer-visiting filename)))
     (if existing-buffer
 	(with-current-buffer existing-buffer
-	  (clone-indirect-buffer (generate-new-buffer-name "el-presenti-slide") nil))
+	  (clone-indirect-buffer filename nil))
       (find-file-noselect filename))))
 
 (defun el-presenti--create-slide (content)
