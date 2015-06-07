@@ -17,7 +17,7 @@
   "Toggle el-presenti-mode."
 
   :init-value nil
-  :lighter " El Presenti"
+  :lighter " [Presentation]"
   :global t
 
   :keymap (let ((map (make-sparse-keymap)))
@@ -100,7 +100,6 @@
 
 (defun el-presenti-start (slides)
   "Set up the buffer list and start the el-presenti minor mode"
-  (interactive)
   (let (buffers)
     (dolist (slide-content slides buffers)
       (let ((type (car slide-content))
@@ -127,7 +126,7 @@
   (el-presenti--restore-emacs)
   (show-buffer nil el-presenti--last-buffer)
   (setq el-presenti--last-buffer nil)
-  (el-presenti-mode nil))
+  (el-presenti-mode 0))
 
 (defun el-presenti--load-file (filename)
   (let ((existing-buffer (find-buffer-visiting filename)))
