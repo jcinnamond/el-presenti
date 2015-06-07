@@ -96,16 +96,18 @@
   (set-fringe-mode el-presenti--previous-fringe)
   (set-background-color el-presenti--background-color))
 
-(defun el-presenti-start (contents)
+(defun el-presenti-start (slides)
   "Set up the buffer list and start the el-presenti minor mode"
   (interactive)
   (let (buffers)
-    (dolist (content contents buffers)
-      (if (eq 'file (car content))
-	  (let ((buffer (find-file-noselect (cadr content))))
-	    (setq buffers (append buffers (list buffer))))
-	(let ((buffer (el-presenti--create-slide content)))
-	  (setq buffers (append buffers (list buffer))))))
+    (dolist (slide-content slides buffers)
+      (let ((type (car slide-content))
+	    (content (cdr slide-content)))
+	(case type
+	  ('file (let ((buffer (el-presenti--load-file content)))
+		   (setq buffers (append buffers (list buffer)))))
+	  ('slide (let ((buffer (el-presenti--create-slide content)))
+		    (setq buffers (append buffers (list buffer))))))))
     (setq el-presenti--opened-buffers (copy-list buffers))
     (setq el-presenti--current (pop buffers))
     (setq el-presenti--next buffers)
@@ -126,6 +128,12 @@
   (setq el-presenti--last-buffer nil)
   (el-presenti-mode nil))
 
+(defun el-presenti--load-file (filename)
+  (let ((existing-buffer (find-buffer-visiting filename)))
+    (if existing-buffer
+	(with-current-buffer existing-buffer
+	  (clone-indirect-buffer (generate-new-buffer-name "el-presenti-slide") nil))
+      (find-file-noselect filename))))
 
 (defun el-presenti--create-slide (content)
   "creates a slide, returns a buffer"
