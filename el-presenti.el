@@ -87,16 +87,8 @@
   (modify-frame-parameters (selected-frame) (list (cons 'cursor-type el-presenti--previous-cursor))))
 
 (defun el-presenti--hide-emacs ()
-  (setq el-presenti--previous-cursor (el-presenti--frame-property 'cursor-type))
-  (setq el-presenti--background-color (el-presenti--frame-property 'background-color))
   (set-background-color "Black")
-  (setq el-presenti--previous-fringe fringe-mode)
   (set-fringe-mode 0))
-
-(defun el-presenti--restore-emacs ()
-  (el-presenti--show-cursor)
-  (set-fringe-mode el-presenti--previous-fringe)
-  (set-background-color el-presenti--background-color))
 
 (defun el-presenti-start (slides)
   "Set up the buffer list and start the el-presenti minor mode"
@@ -112,9 +104,9 @@
     (setq el-presenti--current (pop buffers))
     (setq el-presenti--next buffers)
     (setq el-presenti--previous ()))
-  (setq el-presenti--last-buffer (current-buffer))
+  (setq el-presenti--frame (make-frame '((internal-border-width . 30) (fullscreen . fullboth))))
+  (select-frame el-presenti--frame)
   (el-presenti--hide-emacs)
-  (delete-other-windows)
   (el-presenti--show-buffer el-presenti--current)
   (el-presenti-mode t))
 
@@ -123,9 +115,7 @@
   (interactive)
   (dolist (b el-presenti--opened-buffers)
     (kill-buffer (car b)))
-  (el-presenti--restore-emacs)
-  (show-buffer nil el-presenti--last-buffer)
-  (setq el-presenti--last-buffer nil)
+  (delete-frame el-presenti--frame)
   (el-presenti-mode 0))
 
 (defun el-presenti--load-file (filename)
