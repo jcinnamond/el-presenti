@@ -6,7 +6,7 @@
 
 (defvar el-presenti-font-lock-keywords
   '(("-+[[:space:]]*slide\\(\:[^[:space:]]+\\)?[[:space:]]?-*" . font-lock-comment-face)
-    ("\*[[:space:]]?[^[:space:]]+" . font-lock-keyword-face))
+    ("--[[:space:]]?[^[:space:]]+" . font-lock-keyword-face))
    "Keyword highlighting specification for `sample-mode'.")
 
 (define-derived-mode el-presenti-edit-mode fundamental-mode
@@ -25,8 +25,8 @@
       (let ((type (car slide))
 	    (content (cdr slide)))
 	(case type
-	  ('file (add-to-list 'slides slide))
-	  ('slide (add-to-list 'slides (cons 'slide (el-presenti--build-slide-content content)))))))
+	  ('file (push slide slides))
+	  ('slide (push (cons 'slide (el-presenti--build-slide-content content)) slides)))))
     (reverse slides)))
 
 (defun el-presenti--find-slides ()
@@ -36,21 +36,23 @@
 	  (slide-contents ()))
       (while (search-forward-regexp "-+[[:space:]]*slide\\(\:[^[:space:]]+\\)?[[:space:]]?-*" nil t)
 	(if last-pos
-	    (add-to-list 'slide-contents (cons 'slide (buffer-substring-no-properties last-pos (match-beginning 0)))))
+	    (push (cons 'slide (buffer-substring-no-properties last-pos (match-beginning 0))) slide-contents))
 	(if (match-beginning 1) ;; if we matched a path after slide
 	    (progn
-	      (add-to-list 'slide-contents (cons 'file (buffer-substring-no-properties (+ 1 (match-beginning 1)) (match-end 1))))
+	      (push (cons 'file (buffer-substring-no-properties (+ 1 (match-beginning 1)) (match-end 1))) slide-contents)
 	      (setq last-pos nil))
 	  (setq last-pos (point))))
       (if last-pos
-	  (add-to-list 'slide-contents (cons 'slide (buffer-substring-no-properties last-pos (point-max)))))
+	  (push (cons 'slide (buffer-substring-no-properties last-pos (point-max))) slide-contents))
       (reverse slide-contents))))
 
 (defun el-presenti--build-slide-content (str)
   (let ((contents ()))
     (dolist (line (split-string str "\n"))
-      (if (string-match "**[[:space:]]?\\([^[:space:]]+\\)[[:space:]]\\(.*\\)" line)
+      (if (string-match "-- [[:space:]]?\\([^[:space:]]+\\)\\(?:[[:space:]]\\(.*\\)\\)?" line)
 	  (let ((type (substring line (match-beginning 1) (match-end 1)))
-		(content (substring line (match-beginning 2) (match-end 2))))
-	    (add-to-list 'contents (list (intern type) content)))))
+		(content (if (match-beginning 2)
+			     (substring line (match-beginning 2) (match-end 2))
+			   "\n")))
+	    (push (list (intern type) content) contents))))
     (reverse contents)))
