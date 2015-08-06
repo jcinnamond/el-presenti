@@ -1,3 +1,9 @@
+(defcustom el-presenti-border 30
+  "The border size to use in the presentation frame")
+
+(defcustom el-presenti-default-font-size 420
+  "The height value for the default face (used when showing exiting files/buffers)")
+
 (defface el-presenti-title-face
   '((t :family "Helvetica" :height 1600))
   "The face to display titles"
