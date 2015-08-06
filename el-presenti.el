@@ -98,17 +98,8 @@
   (set-fringe-mode 0))
 
 (defun el-presenti-start (slides)
-  "Set up the buffer list and start the el-presenti minor mode"
-  (let (buffers)
-    (dolist (slide-content slides buffers)
-      (let ((type (car slide-content))
-	    (content (cdr slide-content)))
-	(case type
-	  ('file (add-to-list 'buffers (el-presenti--load-file content nil)))
-	  ('edit (add-to-list 'buffers (el-presenti--load-file content t)))
-	  ('blank (add-to-list 'buffers (el-presenti--create-buffer content)))
-	  ('slide (add-to-list 'buffers (el-presenti--create-slide content)))
-	  (otherwise (message (concat "unknown slide type " type))))))
+  "Start the presentation"
+  (let ((buffers (create-buffers slides)))
     (setq buffers (reverse buffers))
     (setq el-presenti--opened-buffers (copy-list buffers))
     (setq el-presenti--current (pop buffers))
@@ -121,6 +112,20 @@
   (el-presenti--hide-emacs)
   (el-presenti--show-buffer el-presenti--current)
   (el-presenti-mode t))
+
+(defun create-buffers (slides)
+  (let (buffers)
+    (dolist (slide-content slides buffers)
+      (let ((type (car slide-content))
+	    (content (cdr slide-content)))
+	(case type
+	  ('file (add-to-list 'buffers (el-presenti--load-file content nil)))
+	  ('edit (add-to-list 'buffers (el-presenti--load-file content t)))
+	  ('blank (add-to-list 'buffers (el-presenti--create-buffer content)))
+	  ('slide (add-to-list 'buffers (el-presenti--create-slide content)))
+	  (otherwise (message (concat "unknown slide type " type))))))
+    buffers)
+  )
 
 (defun el-presenti-stop ()
   "Stop an el-presenti presentation and close any associated buffers"
