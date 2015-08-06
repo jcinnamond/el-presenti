@@ -119,6 +119,7 @@
       (let ((type (car slide-content))
 	    (content (cdr slide-content)))
 	(case type
+	  ('start-here (setq buffers ()))
 	  ('file (add-to-list 'buffers (el-presenti--load-file content nil)))
 	  ('edit (add-to-list 'buffers (el-presenti--load-file content t)))
 	  ('blank (add-to-list 'buffers (el-presenti--create-buffer content)))
