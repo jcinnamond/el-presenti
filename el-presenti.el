@@ -93,6 +93,7 @@
   (modify-frame-parameters (selected-frame) (list (cons 'cursor-type el-presenti--previous-cursor))))
 
 (defun el-presenti--hide-emacs ()
+  (setq el-presenti--previous-cursor (el-presenti--frame-property 'cursor-type))
   (set-background-color "Black")
   (set-fringe-mode 0))
 
