@@ -5,7 +5,7 @@
    "Keymap for `el-presenti-edit-mode'.")
 
 (defvar el-presenti-font-lock-keywords
-  '(("-+[[:space:]]*slide\\(\:[^[:space:]]+\\)?[[:space:]]?-*" . font-lock-comment-face)
+  '(("^-\\{3,\\}+[[:space:]]*slide\\(:[^[:space:]]+\\)?[[:space:]]?-\\{3,\\}" . font-lock-comment-face)
     ("--[[:space:]]?[^[:space:]]+" . font-lock-keyword-face))
    "Keyword highlighting specification for `sample-mode'.")
 
@@ -34,12 +34,13 @@
     (goto-char (point-min))
     (let ((last-pos nil)
 	  (slide-contents ()))
-      (while (search-forward-regexp "-+[[:space:]]*slide\\(\:[^[:space:]]+\\)?[[:space:]]?-*" nil t)
+      (while (search-forward-regexp "^-\\{3,\\}[[:space:]]*slide\\(?::\\([^:]+\\):\\([^[:space:]]+\\)\\)?[[:space:]]-\\{3,\\}" nil t)
 	(if last-pos
 	    (push (cons 'slide (buffer-substring-no-properties last-pos (match-beginning 0))) slide-contents))
-	(if (match-beginning 1) ;; if we matched a path after slide
-	    (progn
-	      (push (cons 'file (buffer-substring-no-properties (+ 1 (match-beginning 1)) (match-end 1))) slide-contents)
+	(if (match-beginning 1) ;; if we matched an instruction after slide
+	    (let ((type (buffer-substring-no-properties (match-beginning 1) (match-end 1)))
+		  (value (buffer-substring-no-properties (match-beginning 2) (match-end 2))))
+	      (push (cons (intern type) value) slide-contents)
 	      (setq last-pos nil))
 	  (setq last-pos (point))))
       (if last-pos
