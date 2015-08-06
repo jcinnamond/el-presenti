@@ -25,8 +25,8 @@
       (let ((type (car slide))
 	    (content (cdr slide)))
 	(case type
-	  ('file (push slide slides))
-	  ('slide (push (cons 'slide (el-presenti--build-slide-content content)) slides)))))
+	  ('slide (push (cons 'slide (el-presenti--build-slide-content content)) slides))
+	  (otherwise (push slide slides)))))
     (reverse slides)))
 
 (defun el-presenti--find-slides ()

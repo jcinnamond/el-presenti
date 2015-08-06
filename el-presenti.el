@@ -97,14 +97,19 @@
       (let ((type (car slide-content))
 	    (content (cdr slide-content)))
 	(case type
-	  ('file (add-to-list 'buffers (el-presenti--load-file content)))
-	  ('slide (add-to-list 'buffers (el-presenti--create-slide content))))))
+	  ('file (add-to-list 'buffers (el-presenti--load-file content nil)))
+	  ('edit (add-to-list 'buffers (el-presenti--load-file content t)))
+	  ('blank (add-to-list 'buffers (el-presenti--create-buffer content)))
+	  ('slide (add-to-list 'buffers (el-presenti--create-slide content)))
+	  (otherwise (message (concat "unknown slide type " type))))))
     (setq buffers (reverse buffers))
     (setq el-presenti--opened-buffers (copy-list buffers))
     (setq el-presenti--current (pop buffers))
     (setq el-presenti--next buffers)
     (setq el-presenti--previous ()))
+  (read-from-minibuffer "Ready?")
   (setq el-presenti--frame (make-frame '((internal-border-width . 30) (fullscreen . fullboth))))
+  (set-face-attribute 'default el-presenti--frame :height el-presenti-default-font-size)
   (select-frame el-presenti--frame)
   (el-presenti--hide-emacs)
   (el-presenti--show-buffer el-presenti--current)
@@ -118,12 +123,20 @@
   (delete-frame el-presenti--frame)
   (el-presenti-mode 0))
 
-(defun el-presenti--load-file (filename)
+(defun el-presenti--clone-or-visit-file (filename)
   (let ((existing-buffer (find-buffer-visiting filename)))
     (if existing-buffer
 	(with-current-buffer existing-buffer
-	  (cons (clone-indirect-buffer filename nil) 'file))
-      (cons (find-file-noselect filename) 'file))))
+	  (clone-indirect-buffer filename nil))
+      (find-file-noselect filename))))
+
+(defun el-presenti--load-file (filename edit-p)
+  "opens a file or clones a buffer if the file is already being visited"
+  (let ((buffer (el-presenti--clone-or-visit-file filename)))
+    (if (not edit-p)
+	(with-current-buffer buffer
+	  (setq mode-line-format nil)))
+    (cons buffer edit-p)))
 
 (defun el-presenti--create-slide (content)
   "creates a slide, returns a buffer"
@@ -132,14 +145,30 @@
       (setq mode-line-format nil)
       (dolist (item content)
 	(el-presenti--insert-slide-item item)))
-    (cons buffer 'slide)))
+    (cons buffer nil)))
+
+(defun el-presenti--create-buffer (mode)
+  "creates a buffer of a given mode"
+  (let ((buffer (generate-new-buffer (generate-new-buffer-name "el-presenti-slide"))))
+    (with-current-buffer buffer
+      (funcall (intern mode)))
+    (cons buffer t)))
 
 (defun el-presenti--insert-slide-item (item)
   "Inserts an item into a slide.
 
 The item should be a list of (type content) where type is one (title, subtitle)"
-  (let ((face (intern (concat "el-presenti-" (symbol-name (car item)) "-face"))))
-    (el-presenti--insert-with-face (cadr item) face)))
+  (let ((type (car item))
+	(content (cadr item)))
+    (if (eq type 'image)
+	(el-presenti--insert-image content)
+      (let* ((face-name (concat "el-presenti-" (symbol-name (car item)) "-face"))
+	     (face (intern face-name)))
+	(el-presenti--insert-with-face content face)))))
+
+(defun el-presenti--insert-image (name)
+  "Inserts an image into the buffer at point"
+  (insert-image (create-image name)))
 
 (defun el-presenti--insert-with-face (text face)
   "Inserts text into a buffer at point and sets the face"
