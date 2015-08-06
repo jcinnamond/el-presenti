@@ -36,12 +36,12 @@
 
 (defun el-presenti--show-buffer (buffer-pair)
   (let ((buffer (car buffer-pair))
-	(buffer-type (cdr buffer-pair)))
+	(edit (cdr buffer-pair)))
     (set-window-buffer nil buffer)
     (with-current-buffer buffer
-      (if (eq 'slide buffer-type)
-	  (el-presenti--hide-cursor)
-	(el-presenti--show-cursor)))))
+      (if edit
+    	  (el-presenti--show-cursor)
+    	(el-presenti--hide-cursor)))))
 
 (defun el-presenti-previous-buffer ()
   "Shows the previous buffer"
