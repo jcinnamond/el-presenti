@@ -97,6 +97,15 @@
   (set-background-color "Black")
   (set-fringe-mode 0))
 
+(defun el-presenti--never-quit ()
+  "Unbind C-x C-c so I can't accidentally quit mid presentation"
+  (global-unset-key (kbd "C-x C-c"))
+  (global-set-key (kbd "C-x C-c") (lambda () (interactive) (message "Calm down John"))))
+
+(defun el-presenti--let-me-quit-again ()
+  "Rebind C-x C-c because I probably want to quit some time"
+  (global-set-key (kbd "C-x C-c") 'save-buffers-kill-terminal))
+
 (defun el-presenti-start (slides)
   "Start the presentation"
   (let ((buffers (el-presenti--create-buffers slides)))
@@ -106,6 +115,7 @@
     (setq el-presenti--next buffers)
     (setq el-presenti--previous ()))
   (read-from-minibuffer "Ready?")
+  (el-presenti--never-quit)
   (setq el-presenti--frame (make-frame '((internal-border-width . 30) (fullscreen . fullboth))))
   (set-face-attribute 'default el-presenti--frame :height el-presenti-default-font-size)
   (select-frame el-presenti--frame)
@@ -137,6 +147,7 @@
   (dolist (b el-presenti--opened-buffers)
     (kill-buffer (car b)))
   (delete-frame el-presenti--frame)
+  (el-presenti--let-me-quit-again)
   (el-presenti-mode 0))
 
 (defun el-presenti--clone-or-visit-file (filename)
