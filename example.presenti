@@ -1,0 +1,31 @@
+----- slide -----
+-- title This is el-presenti
+
+----- slide -----
+-- subtitle The next slide will show you some of the source code
+
+You can write notes like this - they won't show up in your slides.
+
+----- slide:file:el-presenti.el -----
+
+----- slide -----
+-- subtitle
+The empty subtitle line is used to add some space at the top
+
+-- title Editing files
+-- title
+-- subtitle You can open the file with the cursor and modeline visible
+
+----- slide:edit:el-presenti.el -----
+
+----- slide -----
+-- subtitle
+-- title Empty buffers
+-- title
+-- subtitle You can use these to write content from scratch during a presentation
+
+----- slide:blank:text-mode -----
+
+----- slide -----
+-- title
+-- title fin
