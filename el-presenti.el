@@ -4,6 +4,9 @@
 (defcustom el-presenti-default-font-size 420
   "The height value for the default face (used when showing exiting files/buffers)")
 
+(defcustom el-presenti-background-color "Black"
+  "The background color to set when running the presentation")
+
 (defface el-presenti-title-face
   '((t :family "Helvetica" :height 1600))
   "The face to display titles"
@@ -94,7 +97,7 @@
 
 (defun el-presenti--hide-emacs ()
   (setq el-presenti--previous-cursor (el-presenti--frame-property 'cursor-type))
-  (set-background-color "Black")
+  (set-background-color el-presenti-background-color)
   (set-fringe-mode 0))
 
 (defun el-presenti--never-quit ()
