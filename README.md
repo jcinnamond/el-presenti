@@ -5,13 +5,13 @@ A presentation mode for emacs. Because emacs.
 
 You know how it is. You're going to give a talk and you want to do
 some live coding. So of course you want to use your favourite
-editor[^1]. But you want to have some slides too, and you don't want
-that awkward moment in the talk where you switch from your
-presentation software to your editor and lose the flow of your talk.
-Wouldn't it be great if you could embed your favourite editor[^2]
-right into your presentation software? Well that's not going to
-happen, so you might as well just turn your editor into a presentation
-program.
+editor<sup>[1](#f1)</sup>. But you want to have some slides too, and
+you don't want that awkward moment in the talk where you switch from
+your presentation software to your editor and lose the flow of your
+talk. Wouldn't it be great if you could embed your favourite
+editor<sup>[2](#f2)</sup> right into your presentation software? Well
+that's not going to happen, so you might as well just turn your editor
+into a presentation program.
 
 [enter stage left el-presenti]
 
@@ -153,6 +153,6 @@ you want to change where you position it you need to move the point.
 You move the point by inserting whitespace. It's awkward and error
 prone. Sorry.
 
-[^1]: or, failing that, emacs.
+<a name="f1">1</a>: or, failing that, emacs.
 
-[^2]: see above
+<a name="f2">2</a>: see above
