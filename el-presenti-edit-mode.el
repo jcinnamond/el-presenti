@@ -1,8 +1,24 @@
+;;; el-presenti-edit-mode.el --- major mode for editing el-presenti slides
+
+;; Copyright 2016 John Cinnamond
+
+;; Author: John Cinnamond
+;; Version: 1.0.0
+
+;;; Commentary:
+;;
+;; el-presenti is a presentation mode for emacs. This major mode
+;; allows slides to be edited, for slides to be created, and for the
+;; presentation to be started.
+
+;;; License: see the file LICENSE.
+
+;;; Code:
 (defvar el-presenti-edit-mode-map
-   (let ((map (make-sparse-keymap)))
-     (define-key map (kbd "C-c e p") 'el-presenti-start-presentation)
-     map)
-   "Keymap for `el-presenti-edit-mode'.")
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c e p") 'el-presenti-start-presentation)
+    map)
+  "Keymap for `el-presenti-edit-mode'.")
 
 (defvar el-presenti-font-lock-keywords
   '(("^-\\{3,\\}+[[:space:]]*slide\\(:[^[:space:]]+\\)?[[:space:]]?-\\{3,\\}" . font-lock-comment-face)
@@ -57,3 +73,5 @@
 			   "\n")))
 	    (push (list (intern type) content) contents))))
     (reverse contents)))
+
+(provide 'el-presenti-edit-mode)

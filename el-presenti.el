@@ -1,11 +1,29 @@
+;;; el-presenti.el --- minor mode for controlling presentations
+
+;; Copyright 2016 John Cinnamond
+
+;; Author: John Cinnamond
+;; Version: 1.0.0
+
+;;; Commentary:
+;;
+;; el-presenti is a presentation mode for emacs. This minor mode
+;; provides functions for building slides, and for controlling
+;; presentations.
+
+;;; License: see the file LICENSE.
+
 (defcustom el-presenti-border 30
-  "The border size to use in the presentation frame")
+  "The border size to use in the presentation frame"
+  :group :el-presenti)
 
 (defcustom el-presenti-default-font-size 420
-  "The height value for the default face (used when showing exiting files/buffers)")
+  "The height value for the default face (used when showing exiting files/buffers)"
+  :group :el-presenti)
 
 (defcustom el-presenti-background-color "Black"
-  "The background color to set when running the presentation")
+  "The background color to set when running the presentation"
+  :group :el-presenti)
 
 (defface el-presenti-title-face
   '((t :family "Helvetica" :height 1600))
@@ -21,6 +39,13 @@
   '((t :height 240))
   "The face to display subtitles"
   :group :el-presenti)
+
+(defvar el-presenti--current)
+(defvar el-presenti--next)
+(defvar el-presenti--previous)
+(defvar el-presenti--previous-cursor)
+(defvar el-presenti--opened-buffers)
+(defvar el-presenti--frame)
 
 (define-minor-mode el-presenti-mode
   "Toggle el-presenti-mode."
@@ -85,7 +110,7 @@
 (defun el-presenti--add-to-next (item)
   "updates the global el-presenti next buffer state"
   (let ((safe-item (if (listp item) item (list item))))
-    (setq el-presenti--next (cons safe-item el-present--next))))
+    (setq el-presenti--next (cons safe-item el-presenti--next))))
 
 (defun el-presenti--frame-property (prop)
   (cdr (assoc prop (frame-parameters))))
@@ -208,3 +233,5 @@ The item should be a list of (type content) where type is one (title, subtitle)"
     (put-text-property 0 (length text) 'face face text))
   (insert text)
   (newline))
+
+(provide 'el-presenti-mode)
