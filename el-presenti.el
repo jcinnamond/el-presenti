@@ -42,6 +42,7 @@
 	(edit (cdr buffer-pair)))
     (set-window-buffer nil buffer)
     (with-current-buffer buffer
+      (goto-char (point-min))
       (if edit
     	  (el-presenti--show-cursor)
     	(el-presenti--hide-cursor)))))
@@ -149,6 +150,7 @@
   (interactive)
   (dolist (b el-presenti--opened-buffers)
     (kill-buffer (car b)))
+  (toggle-frame-fullscreen)
   (delete-frame el-presenti--frame)
   (el-presenti--let-me-quit-again)
   (el-presenti-mode 0))
@@ -163,9 +165,8 @@
 (defun el-presenti--load-file (filename edit-p)
   "opens a file or clones a buffer if the file is already being visited"
   (let ((buffer (el-presenti--clone-or-visit-file filename)))
-    (if (not edit-p)
-	(with-current-buffer buffer
-	  (setq mode-line-format nil)))
+    (with-current-buffer buffer
+      (setq mode-line-format nil))
     (cons buffer edit-p)))
 
 (defun el-presenti--create-slide (content)
