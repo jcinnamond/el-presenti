@@ -3,7 +3,7 @@
 ;; Copyright 2016 John Cinnamond
 
 ;; Author: John Cinnamond
-;; Version: 1.0.0
+;; Version: 1.0.1
 
 ;;; Commentary:
 ;;
@@ -40,9 +40,9 @@
     (dolist (slide (el-presenti--find-slides))
       (let ((type (car slide))
 	    (content (cdr slide)))
-	(case type
+	(cl-case type
 	  ('slide (push (cons 'slide (el-presenti--build-slide-content content)) slides))
-	  (otherwise (push slide slides)))))
+	  (t (push slide slides)))))
     (reverse slides)))
 
 (defun el-presenti--find-slides ()

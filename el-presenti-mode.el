@@ -3,7 +3,7 @@
 ;; Copyright 2016 John Cinnamond
 
 ;; Author: John Cinnamond
-;; Version: 1.0.0
+;; Version: 1.0.1
 
 ;;; Commentary:
 ;;
@@ -139,7 +139,7 @@
   "Start the presentation"
   (let ((buffers (el-presenti--create-buffers slides)))
     (setq buffers (reverse buffers))
-    (setq el-presenti--opened-buffers (copy-list buffers))
+    (setq el-presenti--opened-buffers (cl-copy-list buffers))
     (setq el-presenti--current (pop buffers))
     (setq el-presenti--next buffers)
     (setq el-presenti--previous ()))
@@ -157,13 +157,13 @@
     (dolist (slide-content slides buffers)
       (let ((type (car slide-content))
 	    (content (cdr slide-content)))
-	(case type
+	(cl-case type
 	  ('start-here (setq buffers (el-presenti--reset-buffers buffers)))
 	  ('file (add-to-list 'buffers (el-presenti--load-file content nil)))
 	  ('edit (add-to-list 'buffers (el-presenti--load-file content t)))
 	  ('blank (add-to-list 'buffers (el-presenti--create-buffer content)))
 	  ('slide (add-to-list 'buffers (el-presenti--create-slide content)))
-	  (otherwise (message (concat "unknown slide type " type))))))
+	  (t (message (concat "unknown slide type " type))))))
     buffers))
 
 (defun el-presenti--reset-buffers (buffers)
